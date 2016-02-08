@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"math/rand"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/docker/libnetwork/etchosts"
@@ -125,6 +127,10 @@ type containerConfig struct {
 	useExternalKey    bool
 	prio              int // higher the value, more the priority
 }
+
+var (
+	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+)
 
 func (sb *sandbox) ID() string {
 	return sb.id
@@ -527,7 +533,9 @@ func (sb *sandbox) resolveName(req string, networkName string, epList []*endpoin
 		ip, ok := sr.svcMap[name]
 		n.Unlock()
 		if ok {
-			return ip[0]
+			log.Debugf("oh, oh me:", ip)
+			r := rnd.Intn(len(ip))
+			return ip[r]
 		}
 	}
 	return nil
